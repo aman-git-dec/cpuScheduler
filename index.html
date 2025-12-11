@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>CPU Scheduler Visualizer</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="left-top">
+          <div class="brand">CPU Scheduler Visualizer</div>
+          
+        </div>
+
+        <div class="controls">
+          <select
+            id="algo"
+            title="Choose scheduling algorithm"
+            class="control-select"
+          >
+            <option>FCFS</option>
+            <option>SJF</option>
+            <option>SRTF</option>
+            <option>Round Robin</option>
+            <option>Priority</option>
+          </select>
+
+          <label class="compact"
+            >Quantum
+            <input
+              id="quantum"
+              type="number"
+              value="2"
+              min="1"
+              class="control-input"
+            />
+          </label>
+
+          <button id="openAdd" class="btn">+ Add</button>
+          <button id="start" class="btn primary">Start</button>
+          <button id="toggle" class="btn">Pause</button>
+          <button id="reset" class="btn warn">Reset</button>
+
+          <label class="compact speed-label"
+            >Speed
+            <input
+              id="speed"
+              type="range"
+              min="50"
+              max="1000"
+              step="10"
+              value="300"
+            />
+          </label>
+
+          <button id="themeToggle" class="btn small">🌗 Theme</button>
+        </div>
+      </header>
+
+      <main class="main">
+        <aside class="left">
+          <section class="card">
+            <h3>Processes</h3>
+            <table id="procTable" class="proc-table">
+              <thead>
+                <tr>
+                  <th>PID</th>
+                  <th>Arr</th>
+                  <th>Burst</th>
+                  <th>Rem</th>
+                  <th>Pri</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <div class="row">
+              <button id="removeSelected" class="btn danger">
+                Remove Selected
+              </button>
+            </div>
+          </section>
+
+          <section class="card">
+            <h3>Progress</h3>
+            <div
+              id="progressList"
+              class="progress-list"
+              aria-live="polite"
+            ></div>
+          </section>
+
+          <section class="card">
+            <h3>Waiting</h3>
+            <div
+              id="waitingLine"
+              class="waiting-line"
+              title="Processes currently waiting"
+            >
+              —
+            </div>
+          </section>
+
+          <section class="card metrics">
+            <h3>Metrics</h3>
+            <div id="metrics" class="metrics-grid">
+              <div>Makespan: <span id="makespan">-</span></div>
+              <div>Avg Wait: <span id="avgWait">-</span></div>
+              <div>Avg Turnaround: <span id="avgTurn">-</span></div>
+              <div>Throughput: <span id="throughput">-</span></div>
+              <div>CPU Util: <span id="cpuUtil">-</span></div>
+            </div>
+
+            <div class="sub">
+            <a
+              href="https://www.geeksforgeeks.org/operating-systems/cpu-scheduling-in-operating-systems/"
+              class="gfg"
+              target="_blank"
+              style="text-decoration: none; color: green; font-weight: bold"
+              >To read theory click here</a
+            >
+          </div>
+          </section>
+        </aside>
+
+        <section class="right">
+          <div class="gantt-card card">
+            <div class="card-head">
+              <h3>Gantt Chart</h3>
+              <div id="legend" class="legend"></div>
+            </div>
+            <canvas id="gantt" width="960" height="260"></canvas>
+            <div id="ganttTooltip" class="tooltip hidden"></div>
+          </div>
+
+          <div class="chart card">
+            <div class="card-head"><h3>Waiting Queue Length</h3></div>
+            <canvas id="queueChart" width="960" height="160"></canvas>
+          </div>
+
+          <div class="formula-box">
+            <h2>CPU Scheduling Formulas</h2>
+
+            <p>
+              <strong>1. Average Waiting Time (AWT):</strong><br />
+              AWT = (Sum of all Waiting Times) / Number of Processes
+            </p>
+
+            <p>
+              <strong>2. Average Turnaround Time (ATT):</strong><br />
+              ATT = (Sum of all Turnaround Times) / Number of Processes
+            </p>
+
+            <p>
+              <strong>3. Throughput:</strong><br />
+              Throughput = Number of Processes Completed / Total Time Taken
+            </p>
+
+            <p>
+              <strong>4. CPU Utilization:</strong><br />
+              CPU Utilization = (Busy Time / Total Time) × 100%
+            </p>
+          </div>
+        </section>
+      </main>
+
+      <!-- Add dialog -->
+      <div
+        id="addModal"
+        class="modal hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-hidden="true"
+      >
+        <div class="modal-card" role="document">
+          <h2>Add Process</h2>
+          <label>PID <input id="m_pid" placeholder="P1" /></label>
+          <label>Arrival <input id="m_arr" type="number" value="0" /></label>
+          <label>Burst <input id="m_burst" type="number" value="1" /></label>
+          <label>Priority <input id="m_pri" type="number" value="0" /></label>
+          <div class="modal-actions">
+            <button id="m_cancel" class="btn">Cancel</button>
+            <button id="m_add" class="btn primary">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <footer class="footer">
+        Tip: click a row to select a process. Quick Add on the bottom-right.
+      </footer>
+
+      <div class="quick-add card quick">
+        <input id="q_pid" placeholder="PID (optional)" />
+        <input id="q_arr" type="number" value="0" />
+        <input id="q_burst" type="number" value="1" />
+        <input id="q_pr" type="number" value="0" />
+        <button id="q_add" class="btn accent">Add</button>
+      </div>
+    </div>
+
+    <script src="script.js" type="module"></script>
+  </body>
+</html>
