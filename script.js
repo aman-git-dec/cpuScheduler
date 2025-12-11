@@ -1,5 +1,3 @@
-// script.js — improved visuals + labels + Gantt tooltip
-
 (function(){
   // DOM
   const algoEl = document.getElementById('algo');
@@ -389,7 +387,7 @@
     // reset
     simTime = 0; gantt = []; waitingHistory = []; currentPid = null; rrQueue=null;
     processes.forEach(p=>{ p.remaining = p.burst; p.start=null; p.finish=null; });
-    running = true; toggleBtn.textContent = '⏸ Pause';
+    running = true; toggleBtn.textContent = 'Pause';
     stepLoop();
   }
 
